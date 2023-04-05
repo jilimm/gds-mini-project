@@ -1,17 +1,16 @@
 package com.gds.challenge.controllers;
 
 
-import com.gds.challenge.BusinessException;
 import com.gds.challenge.entity.User;
 import com.gds.challenge.model.FileUploadStatus;
 import com.gds.challenge.model.UserQueryResult;
 import com.gds.challenge.service.UserService;
 import com.gds.challenge.utils.UserSortType;
 import com.gds.challenge.utils.validators.TextCsvFile;
+import com.opencsv.exceptions.CsvValidationException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.MimeType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +42,8 @@ public class UserController {
         try {
             List<User> userList = userService.csvToUsers(file);
             System.out.println(Arrays.toString(userList.toArray()));
-        } catch (IOException e) {
+        } catch (IOException | CsvValidationException e) {
+            // TODO: catch in exception handler???
             return FileUploadStatus.FAILURE;
         }
         return FileUploadStatus.SUCCESS;
