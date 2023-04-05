@@ -27,6 +27,7 @@ Milestones
 - [x] validate on request params (basic ones?) - https://www.baeldung.com/spring-validate-requestparam-pathvariable
 - [ ] convert CSV file to list of objects
 - [ ] validation on csv file
+- [ ] ensure duplicate name is updated
 - [ ] ensure csv file is all or nothing operation  
     - [ ] username shuold be unique
  
