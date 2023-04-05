@@ -25,9 +25,15 @@ Milestones
 - [x] able to convert request params SQL Query params
 - [x] enum should NOT be case-sensitive
 - [x] validate on request params (basic ones?) - https://www.baeldung.com/spring-validate-requestparam-pathvariable
-- [ ] convert CSV file to list of objects
-- [ ] validation on csv file
-- [ ] ensure duplicate name is updated
-- [ ] ensure csv file is all or nothing operation  
-    - [ ] username shuold be unique
+- [X] convert CSV file to list of objects
+- [X] validation on csv file
+- [X] ensure duplicate name is updated
+- [X] ensure csv file is all or nothing operation  - using `@Transactional` & jparepository for now. to see if can improve?
+    - [x] username shuold be unique
+- [ ] error handling
+  - [ ] excpetions
+    - [ ] controller validations
+    - [ ] BusinessException
+    - [ ] CSVExceptions
+      - [ ] check if can include the row/line number where csv exception occured. 
  

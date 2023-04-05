@@ -3,15 +3,14 @@ package com.gds.challenge.service;
 import com.gds.challenge.BusinessException;
 import com.gds.challenge.entity.User;
 import com.gds.challenge.entity.repository.CustomUsersRepository;
+import com.gds.challenge.entity.repository.UsersRepository;
 import com.gds.challenge.utils.UserSortType;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
-import com.opencsv.bean.*;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvValidationException;
-import com.opencsv.validators.RowFunctionValidator;
-import com.opencsv.validators.RowValidator;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.boot.jaxb.internal.MappingBinder;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +22,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.*;
+
 
 @Service
+@Transactional
 public class UserService {
-
-    public static final String HEADER_NAME = "NAME";
-    public static final String HEADER_SALARY = "SALARY";
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
     CustomUsersRepository customUsersRepository;
+
+    @Autowired
+    UsersRepository usersRepository;
+
 
     public List<User> getUsers(float minSalary,
                                float maxSalary,
@@ -48,19 +46,18 @@ public class UserService {
 
     }
 
-    public List<User> csvToUsers(MultipartFile file) throws IOException {
+    public List<User> csvToUsers(MultipartFile file) throws IOException, CsvValidationException {
 
         // TODO: validate that its not blank????
-        // TODO: storing all users here may not be good idea if file is super big??????
-        // TODO: check if salary cannot be parsed catch NumberFormatException
 
-        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+             CSVReader csvReader = new CSVReader(reader)) {
 
             // validate headers
-            CSVReader csvReader1 = new CSVReader(reader);
-            String[] header = csvReader1.readNext();
-            if (!isValidHeaders(header, new String[]{HEADER_NAME, HEADER_SALARY})) {
-                throw new BusinessException("Invalid headers: "+ Arrays.toString(header)+ "only expected headers NAME and SALARY");
+            String[] header = csvReader.readNext();
+            if (!isValidHeaders(header, CsvHeaders.getValues())) {
+                throw new BusinessException("Invalid headers: Expected " + Arrays.toString(CsvHeaders.getValues()) +
+                        " but found " + Arrays.toString(header));
             }
             reader.reset();
 
@@ -69,23 +66,28 @@ public class UserService {
                     .withType(User.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
-                    .withFilter(line -> {
-                        System.out.println(Arrays.toString(line));
-                        return Float.parseFloat(line[1]) > 0;
-                    })
                     .build();
 
+            processUsers(csvToBean.iterator());
 
-            // TODO: if file is really huge its not a good idea to store it in memory
-            return csvToBean.parse();
 
-        } catch (CsvValidationException e) {
-            throw new RuntimeException(e);
+            return new ArrayList<>();
         }
-
     }
 
-    private boolean isValidHeaders(String[] headers, String[] expectedHeaders ) {
+    @Transactional
+    private void processUsers(Iterator<User> userIterator) {
+        while (userIterator.hasNext()) {
+            User user = userIterator.next();
+            if (user.getSalary() >= 0.0f) { // filter here to let csv annotations do the grunt work
+                System.out.println("inserting : \t" + user);
+                // TODO: may want to use entityManager or batch updates???
+                usersRepository.save(user);
+            }
+        }
+    }
+
+    private boolean isValidHeaders(String[] headers, String[] expectedHeaders) {
         return Arrays.deepEquals(headers, expectedHeaders);
     }
 
@@ -95,7 +97,7 @@ public class UserService {
 
         public static String[] getValues() {
             return Arrays.stream(CsvHeaders.values())
-                            .map(CsvHeaders::toString)
+                    .map(CsvHeaders::toString)
                     .toArray(String[]::new);
         }
 

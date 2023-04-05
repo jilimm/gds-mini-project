@@ -22,11 +22,12 @@ public class User {
 
     @Id
     @CsvBindByName(column = "NAME",required = true)
+    @PreAssignmentValidator(validator = MustMatchRegexExpression.class, paramString = "^[a-zA-Z]+[ a-zA-Z]+$")
     private String name;
 
-    @CsvBindByName(column = "SALARY",required = true)
+    @CsvBindByName(column = "SALARY", required = true)
     @CsvNumber("#.00")
-    private Float salary;
+    private float salary;
 
 
 }
