@@ -1,6 +1,9 @@
 package com.gds.challenge.entity;
 
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvNumber;
+import com.opencsv.bean.validators.MustMatchRegexExpression;
+import com.opencsv.bean.validators.PreAssignmentValidator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -22,7 +25,7 @@ public class User {
     private String name;
 
     @CsvBindByName(column = "SALARY",required = true)
-    @Positive
+    @CsvNumber("#.00")
     private Float salary;
 
 
