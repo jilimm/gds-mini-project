@@ -35,4 +35,5 @@ Milestones
     - [ ] controller validations
     - [ ] BusinessException
     - [ ] CSVExceptions
+      - [ ] check if can include the row/line number where csv exception occured. 
  
