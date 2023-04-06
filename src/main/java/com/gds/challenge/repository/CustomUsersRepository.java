@@ -1,4 +1,4 @@
-package com.gds.challenge.entity.repository;
+package com.gds.challenge.repository;
 
 import com.gds.challenge.entity.User;
 import com.gds.challenge.utils.UserSortType;

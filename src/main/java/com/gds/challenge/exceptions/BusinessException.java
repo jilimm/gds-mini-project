@@ -1,4 +1,4 @@
-package com.gds.challenge;
+package com.gds.challenge.exceptions;
 
 public class BusinessException extends RuntimeException {
     public BusinessException(String message) {

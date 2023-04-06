@@ -1,9 +1,9 @@
 package com.gds.challenge.service;
 
-import com.gds.challenge.BusinessException;
+import com.gds.challenge.exceptions.BusinessException;
 import com.gds.challenge.entity.User;
-import com.gds.challenge.entity.repository.CustomUsersRepository;
-import com.gds.challenge.entity.repository.UsersRepository;
+import com.gds.challenge.repository.CustomUsersRepository;
+import com.gds.challenge.repository.UsersRepository;
 import com.gds.challenge.utils.UserSortType;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
