@@ -1,8 +1,8 @@
 package com.gds.challenge.service;
 
-import com.gds.challenge.exceptions.BusinessException;
 import com.gds.challenge.entity.User;
 import com.gds.challenge.exceptions.CustomCsvValidationException;
+import com.gds.challenge.exceptions.UploadFileException;
 import com.gds.challenge.repository.CustomUsersRepository;
 import com.gds.challenge.repository.UsersRepository;
 import com.gds.challenge.utils.UserSortType;
@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -57,7 +60,7 @@ public class UserService {
             System.out.println(Arrays.toString(header));
             if (!isValidHeaders(header, CsvHeaders.getValues())) {
                 CustomCsvValidationException customCsvValidationException = new CustomCsvValidationException(
-                        "Invalid headers detected. Headers should be "+Arrays.toString(CsvHeaders.getValues()));
+                        "Invalid headers detected. Headers should be " + Arrays.toString(CsvHeaders.getValues()));
                 customCsvValidationException.setLine(header);
                 customCsvValidationException.setLineNumber(1L);
                 throw customCsvValidationException;
@@ -69,6 +72,10 @@ public class UserService {
                     .withType(User.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                    .withExceptionHandler(e -> {
+                        System.out.println("GOTTAAA AN EXCEPTION~~~~");
+                        throw new UploadFileException("problem encountered: (", e);
+                    })
                     .build();
 
             processUsers(csvToBean.iterator());
@@ -80,15 +87,17 @@ public class UserService {
     private void processUsers(Iterator<User> userIterator) {
         while (userIterator.hasNext()) {
             User user = userIterator.next();
-            if (user.getSalary() >= 0.0f) { // filter here to let csv annotations do the grunt work
-                // TODO: may want to use entityManager or batch updates???
+            if (user.getSalary() >= 0.0f) {
+                //TODO: may want to use entityManager or batch updates???
                 // investigate: https://medium.com/geekculture/spring-transactional-rollback-handling-741fcad043c6
                 // https://reflectoring.io/spring-transactions-and-exceptions/
                 usersRepository.save(user);
             } else {
-                logger.debug("Ignoring user: "+user.getName());
+                logger.debug("Ignoring user: " + user.getName());
             }
         }
+
+
     }
 
     private boolean isValidHeaders(String[] headers, String[] expectedHeaders) {

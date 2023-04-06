@@ -1,4 +1,4 @@
-package com.gds.challenge.exceptions;
+package com.gds.challenge.model.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

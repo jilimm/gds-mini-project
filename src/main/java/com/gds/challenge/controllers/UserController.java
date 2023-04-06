@@ -1,27 +1,22 @@
 package com.gds.challenge.controllers;
 
 
-import com.gds.challenge.entity.User;
-import com.gds.challenge.model.FileUploadStatus;
+import com.gds.challenge.exceptions.UploadFileException;
+import com.gds.challenge.model.GenericResponse;
 import com.gds.challenge.model.UserQueryResult;
 import com.gds.challenge.service.UserService;
 import com.gds.challenge.utils.UserSortType;
 import com.gds.challenge.utils.validators.MaxMoreThanOrEqualToMin;
 import com.gds.challenge.utils.validators.TextCsvFile;
 import com.opencsv.exceptions.CsvValidationException;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -45,11 +40,14 @@ public class UserController {
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public FileUploadStatus uploadFile(@RequestParam("file") @Validated @TextCsvFile MultipartFile file)
-            throws CsvValidationException, IOException {
-        userService.csvToUsers(file);
-        // TODO: during failure, must include {success:"0", error: {}}
-        return FileUploadStatus.SUCCESS;
+    public GenericResponse uploadFile(@RequestParam("file") @Validated @TextCsvFile MultipartFile file) {
+        try {
+            userService.csvToUsers(file);
+            return GenericResponse.builder().success(1).build();
+        } catch (IOException | CsvValidationException e) {
+            throw new UploadFileException("error", e);
+        }
+
     }
 
 }

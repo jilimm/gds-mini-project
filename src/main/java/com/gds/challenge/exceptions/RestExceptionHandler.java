@@ -1,9 +1,10 @@
 package com.gds.challenge.exceptions;
 
+import com.gds.challenge.model.GenericResponse;
+import com.gds.challenge.model.error.ErrorDetail;
+import com.gds.challenge.model.error.ErrorMessage;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import com.opencsv.exceptions.CsvValidationException;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,13 @@ import java.util.Optional;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {BusinessException.class})
-    protected ResponseEntity<ErrorMessage> handleBusinessException(RuntimeException ex) {
+    protected ResponseEntity<GenericResponse> handleBusinessException(RuntimeException ex) {
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .timestamp(LocalDateTime.now())
                 .message(ex.getMessage())
                 .build();
-        return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+        GenericResponse fileUploadResponse = GenericResponse.builder().error(errorMessage).build();
+        return new ResponseEntity<GenericResponse>(fileUploadResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -57,7 +59,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .timestamp(LocalDateTime.now())
                 .message(String.format("%s violations detected. Please check error details.", errorDetails.size()))
-                .errorDetails(errorDetails)
+                .details(errorDetails)
                 .build();
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
@@ -80,7 +82,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .timestamp(LocalDateTime.now())
                 .message("Exception encountered when processing CSV file")
-                .errorDetails(Collections.singletonList(errorDetail))
+                .details(Collections.singletonList(errorDetail))
                 .build();
         return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.BAD_REQUEST);
     }
@@ -92,6 +94,39 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .message("Error occurred when reading file: "+ex.getMessage())
                 .build();
         return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(value = {UploadFileException.class})
+    protected ResponseEntity<GenericResponse> handleUploadFileExceptions(UploadFileException e) {
+        GenericResponse.GenericResponseBuilder fileUploadResponseBuilder = GenericResponse.builder().success(0);
+        Exception underlyingException = e.getUnderlyingException();
+        ErrorMessage.ErrorMessageBuilder errorMessageBuilder = ErrorMessage.builder();
+        if (underlyingException instanceof CsvException) {
+            CsvException ex = (CsvException) underlyingException;
+            ErrorDetail errorDetail = ErrorDetail.builder()
+                    .field("line " + ex.getLineNumber())
+                    .invalidValue(String.join(String.valueOf(CSVWriter.DEFAULT_SEPARATOR), Arrays.asList(ex.getLine())))
+                    .message(Optional.ofNullable(ex.getCause())
+                            .map(Throwable::getMessage)
+                            .orElseGet(ex::getLocalizedMessage)
+                            .replaceAll("\"", "'"))
+                    .build();
+            errorMessageBuilder
+                    .timestamp(LocalDateTime.now())
+                    .message("Exception encountered when processing CSV file")
+                    .details(Collections.singletonList(errorDetail));
+            fileUploadResponseBuilder.error(errorMessageBuilder.build());
+            return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.BAD_REQUEST);
+        }
+        if (underlyingException instanceof  IOException) {
+            errorMessageBuilder
+                    .timestamp(LocalDateTime.now())
+                    .message("Error occurred when reading file: "+underlyingException.getMessage());
+            fileUploadResponseBuilder.error(errorMessageBuilder.build());
+            return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        fileUploadResponseBuilder.error(errorMessageBuilder.build());
+        return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
