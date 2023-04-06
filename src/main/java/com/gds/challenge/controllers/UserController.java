@@ -44,18 +44,12 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping(name="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public FileUploadStatus uploadFile(@RequestParam("file") @Validated @TextCsvFile MultipartFile file) {
-        try {
-            List<User> userList = userService.csvToUsers(file);
-            System.out.println(Arrays.toString(userList.toArray()));
-        } catch (IOException | CsvValidationException e) {
-            // TODO: catch in exception handler???
-            return FileUploadStatus.FAILURE;
-        }
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public FileUploadStatus uploadFile(@RequestParam("file") @Validated @TextCsvFile MultipartFile file)
+            throws CsvValidationException, IOException {
+        userService.csvToUsers(file);
+        // TODO: during failure, must include {success:"0", error: {}}
         return FileUploadStatus.SUCCESS;
-
-
     }
 
 }

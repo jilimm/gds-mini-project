@@ -2,6 +2,7 @@ package com.gds.challenge.service;
 
 import com.gds.challenge.exceptions.BusinessException;
 import com.gds.challenge.entity.User;
+import com.gds.challenge.exceptions.CustomCsvValidationException;
 import com.gds.challenge.repository.CustomUsersRepository;
 import com.gds.challenge.repository.UsersRepository;
 import com.gds.challenge.utils.UserSortType;
@@ -46,18 +47,20 @@ public class UserService {
 
     }
 
-    public List<User> csvToUsers(MultipartFile file) throws IOException, CsvValidationException {
-
-        // TODO: validate that its not blank????
+    public void csvToUsers(MultipartFile file) throws IOException, CsvValidationException {
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CSVReader csvReader = new CSVReader(reader)) {
 
             // validate headers
             String[] header = csvReader.readNext();
+            System.out.println(Arrays.toString(header));
             if (!isValidHeaders(header, CsvHeaders.getValues())) {
-                throw new BusinessException("Invalid headers: Expected " + Arrays.toString(CsvHeaders.getValues()) +
-                        " but found " + Arrays.toString(header));
+                CustomCsvValidationException customCsvValidationException = new CustomCsvValidationException(
+                        "Invalid headers detected. Headers should be "+Arrays.toString(CsvHeaders.getValues()));
+                customCsvValidationException.setLine(header);
+                customCsvValidationException.setLineNumber(1L);
+                throw customCsvValidationException;
             }
             reader.reset();
 
@@ -70,8 +73,6 @@ public class UserService {
 
             processUsers(csvToBean.iterator());
 
-
-            return new ArrayList<>();
         }
     }
 
@@ -80,9 +81,12 @@ public class UserService {
         while (userIterator.hasNext()) {
             User user = userIterator.next();
             if (user.getSalary() >= 0.0f) { // filter here to let csv annotations do the grunt work
-                System.out.println("inserting : \t" + user);
                 // TODO: may want to use entityManager or batch updates???
+                // investigate: https://medium.com/geekculture/spring-transactional-rollback-handling-741fcad043c6
+                // https://reflectoring.io/spring-transactions-and-exceptions/
                 usersRepository.save(user);
+            } else {
+                logger.debug("Ignoring user: "+user.getName());
             }
         }
     }

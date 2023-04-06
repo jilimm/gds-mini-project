@@ -19,6 +19,9 @@ GDS SWE Challenge - The mini Project
   // https://reflectoring.io/spring-data-specifications/
   //  https://www.baeldung.com/jpa-and-or-criteria-predicates
   // https://stackoverflow.com/questions/11655870/jpa-2-criteriaquery-using-a-limit
+- CSV Error Handling
+  - fast failure method chosen
+  - I dont wait for entire file to run and collect all exceptions --> if file is huge this is super ineffcient.
 
 Milestones
 - [x] populate H2 DB
