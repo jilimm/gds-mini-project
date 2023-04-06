@@ -57,7 +57,6 @@ public class UserService {
 
             // validate headers
             String[] header = csvReader.readNext();
-            System.out.println(Arrays.toString(header));
             if (!isValidHeaders(header, CsvHeaders.getValues())) {
                 CustomCsvValidationException customCsvValidationException = new CustomCsvValidationException(
                         "Invalid headers detected. Headers should be " + Arrays.toString(CsvHeaders.getValues()));
@@ -73,8 +72,7 @@ public class UserService {
                     .withIgnoreLeadingWhiteSpace(true)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .withExceptionHandler(e -> {
-                        System.out.println("GOTTAAA AN EXCEPTION~~~~");
-                        throw new UploadFileException("problem encountered: (", e);
+                        throw new UploadFileException("Error encountered while processing file", e);
                     })
                     .build();
 
@@ -88,6 +86,7 @@ public class UserService {
         while (userIterator.hasNext()) {
             User user = userIterator.next();
             if (user.getSalary() >= 0.0f) {
+                logger.debug("Processing user: "+user.getName());
                 //TODO: may want to use entityManager or batch updates???
                 // investigate: https://medium.com/geekculture/spring-transactional-rollback-handling-741fcad043c6
                 // https://reflectoring.io/spring-transactions-and-exceptions/

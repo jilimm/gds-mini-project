@@ -12,7 +12,8 @@ import lombok.*;
 @AllArgsConstructor
 public class GenericResponse {
 
-    private int success;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer success;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ErrorMessage error;
 

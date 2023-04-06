@@ -8,6 +8,7 @@ import com.gds.challenge.service.UserService;
 import com.gds.challenge.utils.UserSortType;
 import com.gds.challenge.utils.validators.MaxMoreThanOrEqualToMin;
 import com.gds.challenge.utils.validators.TextCsvFile;
+import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,8 @@ public class UserController {
         try {
             userService.csvToUsers(file);
             return GenericResponse.builder().success(1).build();
-        } catch (IOException | CsvValidationException e) {
-            throw new UploadFileException("error", e);
+        } catch (IOException | CsvException e) {
+            throw new UploadFileException("Error encountered when uploading file", e);
         }
 
     }

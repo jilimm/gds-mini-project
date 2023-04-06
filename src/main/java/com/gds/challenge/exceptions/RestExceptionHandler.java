@@ -28,8 +28,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .message(ex.getMessage())
                 .build();
-        GenericResponse fileUploadResponse = GenericResponse.builder().error(errorMessage).build();
-        return new ResponseEntity<GenericResponse>(fileUploadResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        GenericResponse genericResponse = GenericResponse.builder().error(errorMessage).build();
+        return new ResponseEntity<GenericResponse>(genericResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -39,7 +39,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      * @return Response Entity with Error Message
      */
     @ExceptionHandler(value = {ConstraintViolationException.class})
-    protected ResponseEntity<ErrorMessage> handleConstraintViolation(ConstraintViolationException ex) {
+    protected ResponseEntity<GenericResponse> handleConstraintViolation(ConstraintViolationException ex) {
         List<ErrorDetail> errorDetails = ex.getConstraintViolations()
                 .stream()
                 .map(v -> {
@@ -61,48 +61,17 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .message(String.format("%s violations detected. Please check error details.", errorDetails.size()))
                 .details(errorDetails)
                 .build();
-        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(GenericResponse.builder().error(errorMessage).build(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handle exceptions thrown by opencsv when parsing records as beans
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(value = {CsvException.class})
-    protected ResponseEntity<ErrorMessage> handleCsvException(CsvException ex) {
-        ErrorDetail errorDetail = ErrorDetail.builder()
-                .field("line " + ex.getLineNumber())
-                .invalidValue(String.join(String.valueOf(CSVWriter.DEFAULT_SEPARATOR), Arrays.asList(ex.getLine())))
-                .message(Optional.ofNullable(ex.getCause())
-                        .map(Throwable::getMessage)
-                        .orElseGet(ex::getLocalizedMessage)
-                        .replaceAll("\"", "'"))
-                .build();
-        ErrorMessage errorMessage = ErrorMessage.builder()
-                .timestamp(LocalDateTime.now())
-                .message("Exception encountered when processing CSV file")
-                .details(Collections.singletonList(errorDetail))
-                .build();
-        return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(value = {IOException.class})
-    protected ResponseEntity<ErrorMessage> handleIOException(IOException ex) {
-        ErrorMessage errorMessage = ErrorMessage.builder()
-                .timestamp(LocalDateTime.now())
-                .message("Error occurred when reading file: "+ex.getMessage())
-                .build();
-        return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 
     @ExceptionHandler(value = {UploadFileException.class})
     protected ResponseEntity<GenericResponse> handleUploadFileExceptions(UploadFileException e) {
         GenericResponse.GenericResponseBuilder fileUploadResponseBuilder = GenericResponse.builder().success(0);
-        Exception underlyingException = e.getUnderlyingException();
+        Throwable exceptionCause = e.getCause();
         ErrorMessage.ErrorMessageBuilder errorMessageBuilder = ErrorMessage.builder();
-        if (underlyingException instanceof CsvException) {
-            CsvException ex = (CsvException) underlyingException;
+        if (exceptionCause instanceof CsvException) {
+            CsvException ex = (CsvException) exceptionCause;
             ErrorDetail errorDetail = ErrorDetail.builder()
                     .field("line " + ex.getLineNumber())
                     .invalidValue(String.join(String.valueOf(CSVWriter.DEFAULT_SEPARATOR), Arrays.asList(ex.getLine())))
@@ -113,15 +82,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                     .build();
             errorMessageBuilder
                     .timestamp(LocalDateTime.now())
-                    .message("Exception encountered when processing CSV file")
+                    .message(e.getMessage())
                     .details(Collections.singletonList(errorDetail));
             fileUploadResponseBuilder.error(errorMessageBuilder.build());
             return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.BAD_REQUEST);
         }
-        if (underlyingException instanceof  IOException) {
+        if (exceptionCause instanceof  IOException) {
             errorMessageBuilder
                     .timestamp(LocalDateTime.now())
-                    .message("Error occurred when reading file: "+underlyingException.getMessage());
+                    .message(exceptionCause.getMessage());
             fileUploadResponseBuilder.error(errorMessageBuilder.build());
             return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

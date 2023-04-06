@@ -1,6 +1,5 @@
 package com.gds.challenge.exceptions;
 
-import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.Builder;
 
