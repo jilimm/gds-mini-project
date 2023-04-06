@@ -1,9 +1,10 @@
 package com.gds.challenge.configuration.formatters;
 
+import com.gds.challenge.exceptions.BusinessException;
 import com.gds.challenge.utils.UserSortType;
-import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.StringUtils;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.format.Formatter;
+import org.springframework.http.HttpStatus;
 
 import java.util.Locale;
 
@@ -14,11 +15,14 @@ public class UserSortTypeEnumFormatter implements Formatter<UserSortType> {
 
     @Override
     public UserSortType parse(String text, Locale locale) {
-        if (StringUtils.isBlank(text)) {
+
+        try {
+            return UserSortType.valueOf(text.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            System.out.println("here~~~");
             return null;
         }
 
-        return EnumUtils.getEnum(UserSortType.class, text.toUpperCase());
     }
 
     @Override

@@ -6,16 +6,11 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class EnumMappingConfigurations implements WebMvcConfigurer {
-
-    // https://devwithus.com/enum-mapping-spring-boot/
-    UserSortTypeEnumFormatter userSortTypeEnumFormatter() {
-        return new UserSortTypeEnumFormatter();
-    }
+public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        registry.addFormatter(userSortTypeEnumFormatter());
+        registry.addFormatter(new UserSortTypeEnumFormatter());
     }
 
 

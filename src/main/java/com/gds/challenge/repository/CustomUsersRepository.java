@@ -57,12 +57,4 @@ public class CustomUsersRepository {
         return typedQuery.getResultList();
     }
 
-    // TODO: remove? change to predicate?
-    static Specification<User> salaryBetween(float min, float max) {
-        return (root, query, criteriaBuilder)
-                -> criteriaBuilder.between(root.get("salary"), min, max);
-    }
-
-
-
 }

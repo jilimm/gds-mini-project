@@ -7,10 +7,13 @@ import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
@@ -19,17 +22,56 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {BusinessException.class})
-    protected ResponseEntity<GenericResponse> handleBusinessException(RuntimeException ex) {
+    protected ResponseEntity<GenericResponse> handleBusinessException(BusinessException ex) {
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .timestamp(LocalDateTime.now())
                 .message(ex.getMessage())
                 .build();
         GenericResponse genericResponse = GenericResponse.builder().error(errorMessage).build();
-        return new ResponseEntity<GenericResponse>(genericResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<GenericResponse>(genericResponse, ex.getHttpStatus());
+    }
+
+    /**
+     * Error handling for invalid enum type
+     * Exception thrown is MethodArgumentTypeMismatchException caused by ConversionFailedException
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<GenericResponse> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        Throwable cause = ex.getCause();
+        String acceptedValues = null;
+        if (cause instanceof ConversionFailedException) {
+            cause = (ConversionFailedException) cause;
+            Optional<Object[]> values = Optional.ofNullable(((ConversionFailedException) cause).getTargetType())
+                    .map(TypeDescriptor::getType)
+                    .filter(Class::isEnum)
+                    .map(Class::getEnumConstants);
+            if (values.isPresent()) {
+                acceptedValues = Arrays.toString(values.get());
+            }
+
+        }
+
+        ErrorMessage errorMessage = ErrorMessage.builder()
+                .timestamp(LocalDateTime.now())
+                .message("Incorrect value given")
+                .details(Collections.singletonList(ErrorDetail.builder()
+                                .field(ex.getName())
+                                .invalidValue((String) Optional.ofNullable(ex.getValue())
+                                        .filter(v -> v instanceof String).orElse(null))
+                                .message(Optional.ofNullable(acceptedValues)
+                                        .map(i -> "Valid values for "+ex.getName()+ " are: "+i)
+                                        .orElse(null))
+                        .build()))
+                .build();
+        GenericResponse genericResponse = GenericResponse.builder().error(errorMessage).build();
+        return new ResponseEntity<GenericResponse>(genericResponse, HttpStatus.BAD_REQUEST);
     }
 
     /**
