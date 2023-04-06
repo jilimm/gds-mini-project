@@ -10,7 +10,8 @@ public class CustomCsvValidationException extends CsvValidationException {
     @Serial
     private static final long serialVersionUID = 7073912321167257823L;
 
-    public CustomCsvValidationException() {    }
+    public CustomCsvValidationException() {
+    }
 
     public CustomCsvValidationException(String message) {
         super(message);

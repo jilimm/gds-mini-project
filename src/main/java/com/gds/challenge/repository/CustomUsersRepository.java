@@ -8,7 +8,6 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class CustomUsersRepository {
         cq.where(cb.between(fromRoot.get("salary"), minSalary, maxSalary));
 
         sortType.ifPresent(type -> {
-            switch (type){
+            switch (type) {
                 case NAME -> {
                     cq.orderBy(cb.asc(fromRoot.get("name")));
                     break;

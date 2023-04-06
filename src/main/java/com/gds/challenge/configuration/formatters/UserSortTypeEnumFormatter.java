@@ -1,10 +1,7 @@
 package com.gds.challenge.configuration.formatters;
 
-import com.gds.challenge.exceptions.BusinessException;
 import com.gds.challenge.utils.UserSortType;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.format.Formatter;
-import org.springframework.http.HttpStatus;
 
 import java.util.Locale;
 

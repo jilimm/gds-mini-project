@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -39,6 +38,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Error handling for invalid enum type
      * Exception thrown is MethodArgumentTypeMismatchException caused by ConversionFailedException
+     *
      * @param ex
      * @return
      */
@@ -47,7 +47,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Throwable cause = ex.getCause();
         String acceptedValues = null;
         if (cause instanceof ConversionFailedException) {
-            cause = (ConversionFailedException) cause;
+            cause = cause;
             Optional<Object[]> values = Optional.ofNullable(((ConversionFailedException) cause).getTargetType())
                     .map(TypeDescriptor::getType)
                     .filter(Class::isEnum)
@@ -62,12 +62,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .message("Incorrect value given")
                 .details(Collections.singletonList(ErrorDetail.builder()
-                                .field(ex.getName())
-                                .invalidValue((String) Optional.ofNullable(ex.getValue())
-                                        .filter(v -> v instanceof String).orElse(null))
-                                .message(Optional.ofNullable(acceptedValues)
-                                        .map(i -> "Valid values for "+ex.getName()+ " are: "+i)
-                                        .orElse(null))
+                        .field(ex.getName())
+                        .invalidValue((String) Optional.ofNullable(ex.getValue())
+                                .filter(v -> v instanceof String).orElse(null))
+                        .message(Optional.ofNullable(acceptedValues)
+                                .map(i -> "Valid values for " + ex.getName() + " are: " + i)
+                                .orElse(null))
                         .build()))
                 .build();
         GenericResponse genericResponse = GenericResponse.builder().error(errorMessage).build();
@@ -112,8 +112,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         GenericResponse.GenericResponseBuilder fileUploadResponseBuilder = GenericResponse.builder().success(0);
         Throwable exceptionCause = e.getCause();
         ErrorMessage.ErrorMessageBuilder errorMessageBuilder = ErrorMessage.builder();
-        if (exceptionCause instanceof CsvException) {
-            CsvException ex = (CsvException) exceptionCause;
+        if (exceptionCause instanceof CsvException ex) {
             ErrorDetail errorDetail = ErrorDetail.builder()
                     .field("line " + ex.getLineNumber())
                     .invalidValue(String.join(String.valueOf(CSVWriter.DEFAULT_SEPARATOR), Arrays.asList(ex.getLine())))
@@ -129,7 +128,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             fileUploadResponseBuilder.error(errorMessageBuilder.build());
             return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.BAD_REQUEST);
         }
-        if (exceptionCause instanceof  IOException) {
+        if (exceptionCause instanceof IOException) {
             errorMessageBuilder
                     .timestamp(LocalDateTime.now())
                     .message(exceptionCause.getMessage());
@@ -139,7 +138,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         fileUploadResponseBuilder.error(errorMessageBuilder.build());
         return new ResponseEntity<GenericResponse>(fileUploadResponseBuilder.build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
 
 }

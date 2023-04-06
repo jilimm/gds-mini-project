@@ -9,13 +9,14 @@ import com.gds.challenge.utils.UserSortType;
 import com.gds.challenge.utils.validators.MaxMoreThanOrEqualToMin;
 import com.gds.challenge.utils.validators.TextCsvFile;
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvValidationException;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,10 +34,8 @@ public class UserController {
     public UserQueryResult getUser(@RequestParam(defaultValue = "0.0") @PositiveOrZero float min,
                                    @RequestParam(defaultValue = "4000.0") @PositiveOrZero float max,
                                    @RequestParam(defaultValue = "0") @PositiveOrZero int offset,
-                                   @RequestParam(required = false)  Optional<@PositiveOrZero  Integer> limit,
-                                   @RequestParam(required = false)  Optional<UserSortType> sort) {
-        //TODO: handle invalid Enum
-        https://www.baeldung.com/spring-enum-request-param
+                                   @RequestParam(required = false) Optional<@PositiveOrZero Integer> limit,
+                                   @RequestParam(required = false) Optional<UserSortType> sort) {
         return UserQueryResult.builder()
                 .results(userService.getUsers(min, max, offset, limit, sort))
                 .build();
