@@ -16,7 +16,6 @@ public class UserSortTypeEnumFormatter implements Formatter<UserSortType> {
         try {
             return UserSortType.valueOf(text.toUpperCase());
         } catch (IllegalArgumentException e) {
-            System.out.println("here~~~");
             return null;
         }
 

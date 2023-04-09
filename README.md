@@ -33,10 +33,12 @@ Milestones
 - [X] ensure duplicate name is updated
 - [X] ensure csv file is all or nothing operation  - using `@Transactional` & jparepository for now. to see if can improve?
     - [x] username shuold be unique
-- [ ] error handling
-  - [ ] excpetions
-    - [ ] controller validations
-    - [ ] BusinessException
-    - [ ] CSVExceptions
-      - [ ] check if can include the row/line number where csv exception occured. 
+- [x] error handling
+  - [x] excpetions
+    - [x] controller validations
+    - [x] BusinessException
+    - [x] CSVExceptions
+      - [x] check if can include the row/line number where csv exception occured. 
+- [ ] Unit testing?
+- [ ] COncurrent upload requests?
  

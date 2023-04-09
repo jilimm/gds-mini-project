@@ -55,8 +55,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             if (values.isPresent()) {
                 acceptedValues = Arrays.toString(values.get());
             }
-
         }
+        if (cause instanceof NumberFormatException) {
+            acceptedValues = "numbers";
+        }
+
 
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .timestamp(LocalDateTime.now())
@@ -66,7 +69,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                         .invalidValue((String) Optional.ofNullable(ex.getValue())
                                 .filter(v -> v instanceof String).orElse(null))
                         .message(Optional.ofNullable(acceptedValues)
-                                .map(i -> "Valid values for " + ex.getName() + " are: " + i)
+                                .map(i -> "Valid values for " + ex.getName() + " are " + i)
                                 .orElse(null))
                         .build()))
                 .build();
