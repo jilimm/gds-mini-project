@@ -5,6 +5,6 @@ package com.gds.challenge.utils;
  */
 public enum UserSortType {
     NAME,
-    SALARY;
+    SALARY
 
 }

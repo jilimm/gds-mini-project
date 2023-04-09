@@ -1,4 +1,4 @@
-package com.gds.challenge.entity.repository;
+package com.gds.challenge.repository;
 
 import com.gds.challenge.entity.User;
 import com.gds.challenge.utils.UserSortType;
@@ -8,7 +8,6 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class CustomUsersRepository {
         cq.where(cb.between(fromRoot.get("salary"), minSalary, maxSalary));
 
         sortType.ifPresent(type -> {
-            switch (type){
+            switch (type) {
                 case NAME -> {
                     cq.orderBy(cb.asc(fromRoot.get("name")));
                     break;
@@ -56,13 +55,5 @@ public class CustomUsersRepository {
 
         return typedQuery.getResultList();
     }
-
-    // TODO: remove? change to predicate?
-    static Specification<User> salaryBetween(float min, float max) {
-        return (root, query, criteriaBuilder)
-                -> criteriaBuilder.between(root.get("salary"), min, max);
-    }
-
-
 
 }

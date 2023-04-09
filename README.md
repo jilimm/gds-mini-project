@@ -19,6 +19,9 @@ GDS SWE Challenge - The mini Project
   // https://reflectoring.io/spring-data-specifications/
   //  https://www.baeldung.com/jpa-and-or-criteria-predicates
   // https://stackoverflow.com/questions/11655870/jpa-2-criteriaquery-using-a-limit
+- CSV Error Handling
+  - fast failure method chosen
+  - I dont wait for entire file to run and collect all exceptions --> if file is huge this is super ineffcient.
 
 Milestones
 - [x] populate H2 DB
@@ -30,10 +33,12 @@ Milestones
 - [X] ensure duplicate name is updated
 - [X] ensure csv file is all or nothing operation  - using `@Transactional` & jparepository for now. to see if can improve?
     - [x] username shuold be unique
-- [ ] error handling
-  - [ ] excpetions
-    - [ ] controller validations
-    - [ ] BusinessException
-    - [ ] CSVExceptions
-      - [ ] check if can include the row/line number where csv exception occured. 
+- [x] error handling
+  - [x] excpetions
+    - [x] controller validations
+    - [x] BusinessException
+    - [x] CSVExceptions
+      - [x] check if can include the row/line number where csv exception occured. 
+- [ ] Unit testing?
+- [ ] COncurrent upload requests?
  
