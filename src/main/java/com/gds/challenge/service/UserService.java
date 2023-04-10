@@ -87,9 +87,6 @@ public class UserService {
             User user = userIterator.next();
             if (user.getSalary() >= 0.0f) {
                 logger.debug("Processing user: " + user.getName());
-                //TODO: investigate for concurrent upload request?
-                // investigate: https://medium.com/geekculture/spring-transactional-rollback-handling-741fcad043c6
-                // https://reflectoring.io/spring-transactions-and-exceptions/
                 usersRepository.save(user);
             } else {
                 logger.debug("Ignoring user: " + user.getName());
