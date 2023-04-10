@@ -81,7 +81,6 @@ public class UserService {
         }
     }
 
-    @Transactional
     private void processUsers(Iterator<User> userIterator) {
         while (userIterator.hasNext()) {
             User user = userIterator.next();
