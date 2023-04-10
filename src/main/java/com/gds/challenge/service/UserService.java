@@ -30,7 +30,6 @@ import java.util.Optional;
 
 
 @Service
-@Transactional
 public class UserService {
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
@@ -50,6 +49,7 @@ public class UserService {
 
     }
 
+    @Transactional
     public void csvToUsers(MultipartFile file) throws IOException, CsvValidationException {
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
