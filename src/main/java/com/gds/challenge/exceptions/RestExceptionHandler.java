@@ -47,7 +47,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Throwable cause = ex.getCause();
         String acceptedValues = null;
         if (cause instanceof ConversionFailedException) {
-            cause = cause;
             Optional<Object[]> values = Optional.ofNullable(((ConversionFailedException) cause).getTargetType())
                     .map(TypeDescriptor::getType)
                     .filter(Class::isEnum)
