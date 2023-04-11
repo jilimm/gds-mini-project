@@ -1,44 +1,81 @@
 # gds-mini-project
 GDS SWE Challenge - The mini Project
 
+## Objective
+Spring web application with endpoints to query a database and modify/insert data to database with csv file
 
-## Assumptions made
-1. User
-   2. salary is float
-   maximum float value is (340 282 346 638 528 860 000 000 000 000 000 000 000)
-    assuming  salary is monthly, float should suffice
-    3. salary min and max is inclusive
+## REST endpoints
+- GET /users
+  - parameters
+    - min - minimum salary. Defaults to 0
+    - max - maximum salary. Defaults to 4000
+    - offset - **Optional.** first result among set to be returned. defaults to 0.
+    - limit - **Optional.** number of results to include. defaults to no limit.
+    - sort - **Optional.** NAME or SALARY, non-case sensitive. Sort only in ascending sequence. Defaults to no sorting.
+  - sample response
+    - ```
+      { 
+        "results": [
+            {
+                "name": "Judy",
+                "salary": "0.0"
+            },
+            {
+                "name": "Xin Yi",
+                "salary": "2500.0"
+            }
+      ]
+      }
+      ```
+- POST /upload
+  - content type
+    - multipart/form
+  - Form field name
+    - file
+  - File constraints
+    - headers must be `NAME,SALARY`
+    - name is text, salary is floating point number
+    - if salary <0 data should be ignored
+    - if name exists in DB, data should be updated
+    - if error occurred while parsing file / inserting data, all data in file should be ignored
+  - sample response
+    - ```
+      { 
+        "success": 1
+      }
+      ```
+    - sample error response
+      - ```
+        { 
+        "success": 0, 
+        "error":{ 
+            "timestamp": "11-04-2023 11:11:48",
+            "message": "Error encountered while processing file", 
+        "details":[ 
+            { 
+                "field": "line 6",
+                "invalidValue": "April,pewpew",
+                "message": "Unparseable number: 'pewpew'"
+            }
+        ]}
+        }
+  
+## Object
+Data returned or inserted into DB will be of `User` type. <br/>
+**User object properties**
 
-## Design Choices
-- DB
-  - use Entity manager to allow more custom  SQL queries
-    https://www.bezkoder.com/jpa-entitymanager-spring-boot/
-- used CQ to allow user defined limit, and offset 
+* `name` - String
+  * name of user
+  * MUST match regex `^[a-zA-Z]+[ a-zA-Z]+$`
+    * name can only contain a-z (case insensitive)
+    * whitespace must be in between characters
+* `salary` - Float
+  * salary of user
 
-  // https://www.baeldung.com/spring-data-criteria-queries
-  // https://reflectoring.io/spring-data-specifications/
-  //  https://www.baeldung.com/jpa-and-or-criteria-predicates
-  // https://stackoverflow.com/questions/11655870/jpa-2-criteriaquery-using-a-limit
-- CSV Error Handling
-  - fast failure method chosen
-  - I dont wait for entire file to run and collect all exceptions --> if file is huge this is super ineffcient.
+## Database
+table: `users`
 
-Milestones
-- [x] populate H2 DB
-- [x] able to convert request params SQL Query params
-- [x] enum should NOT be case-sensitive
-- [x] validate on request params (basic ones?) - https://www.baeldung.com/spring-validate-requestparam-pathvariable
-- [X] convert CSV file to list of objects
-- [X] validation on csv file
-- [X] ensure duplicate name is updated
-- [X] ensure csv file is all or nothing operation  - using `@Transactional` & jparepository for now. to see if can improve?
-    - [x] username shuold be unique
-- [x] error handling
-  - [x] excpetions
-    - [x] controller validations
-    - [x] BusinessException
-    - [x] CSVExceptions
-      - [x] check if can include the row/line number where csv exception occured. 
-- [ ] Unit testing?
-- [ ] COncurrent upload requests?
- 
+| name | type  |  settings |  
+|---|---|---|
+| name | string | primary key | 
+| salary | float | |
