@@ -76,7 +76,16 @@ Data returned or inserted into DB will be of `User` type. <br/>
 ## Database
 table: `users`
 
-| name | type  |  settings |  
-|---|---|---|
-| name | string | primary key | 
-| salary | float | |
+| name | type  |  constriants |  settings |
+|---|---|---|---|
+| name | string | not null | primary key |
+| salary | float | >=0 | |
+
+
+## Set up
+- Java 17
+- Springboot3
+
+There are 2 ways to run project
+1. Load project in IDE, run ChallengeApplication.main
+2. perform `maven clean install` run jar file generated `java -jar challenge-0.0.1-SNAPSHOT.jar`
