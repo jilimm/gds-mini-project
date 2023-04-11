@@ -13,6 +13,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Users Repository with custom queries built with entity manager
+ */
 @Repository
 public class CustomUsersRepository {
 

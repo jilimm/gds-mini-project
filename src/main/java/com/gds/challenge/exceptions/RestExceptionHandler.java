@@ -23,8 +23,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controller Advice for Handling custom exceptions
+ */
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    /**
+     * Handle Business Exception
+     *
+     * @param ex BusinessException
+     * @return Response Entity with Generic Response body
+     */
     @ExceptionHandler(value = {BusinessException.class})
     protected ResponseEntity<GenericResponse> handleBusinessException(BusinessException ex) {
         ErrorMessage errorMessage = ErrorMessage.builder()
@@ -36,11 +46,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Error handling for invalid enum type
-     * Exception thrown is MethodArgumentTypeMismatchException caused by ConversionFailedException
+     * Error handling for invalid parameter types
      *
-     * @param ex
-     * @return
+     * @param ex MethodArgument
+     * @return ResponseEntity with GenericResponse body
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<GenericResponse> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
@@ -109,6 +118,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    /**
+     * Handler for UploadFileException
+     *
+     * @param e UploadFileException
+     * @return ResponseEntity with GenericResponse body
+     */
     @ExceptionHandler(value = {UploadFileException.class})
     protected ResponseEntity<GenericResponse> handleUploadFileExceptions(UploadFileException e) {
         GenericResponse.GenericResponseBuilder fileUploadResponseBuilder = GenericResponse.builder().success(0);

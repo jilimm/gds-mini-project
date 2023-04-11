@@ -14,9 +14,20 @@ import java.util.List;
 @Builder
 public class ErrorMessage {
 
+    /**
+     * current date time
+     */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private LocalDateTime timestamp;
+
+    /**
+     * Error message
+     */
     private String message;
+
+    /**
+     * List of error details
+     */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ErrorDetail> details;
 

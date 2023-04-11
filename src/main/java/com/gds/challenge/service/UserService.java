@@ -39,6 +39,16 @@ public class UserService {
     UsersRepository usersRepository;
 
 
+    /**
+     * Get list of users from DB based on parameters
+     *
+     * @param minSalary minimum Salary
+     * @param maxSalary maximum salary
+     * @param offset result offset
+     * @param limit result limit
+     * @param sortType sort by name or salary
+     * @return list of users from DB
+     */
     public List<User> getUsers(float minSalary,
                                float maxSalary,
                                int offset,
@@ -49,7 +59,14 @@ public class UserService {
 
     }
 
-    @Transactional
+    /**
+     * Parse csv file to Users object and update Users Database
+     *
+     * @param file csv file
+     * @throws IOException error reading file
+     * @throws CsvValidationException error validating file
+     */
+    @Transactional(rollbackOn = {IOException.class, CsvValidationException.class})
     public void csvToUsers(MultipartFile file) throws IOException, CsvValidationException {
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));

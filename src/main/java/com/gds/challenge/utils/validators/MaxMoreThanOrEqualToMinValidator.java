@@ -5,6 +5,10 @@ import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.constraintvalidation.SupportedValidationTarget;
 import jakarta.validation.constraintvalidation.ValidationTarget;
 
+/**
+ * Validate parameters on {@UserController} getUser
+ * ensure max salary is greater than min salary
+ */
 @SupportedValidationTarget(ValidationTarget.PARAMETERS)
 public class MaxMoreThanOrEqualToMinValidator
         implements ConstraintValidator<MaxMoreThanOrEqualToMin, Object[]> {

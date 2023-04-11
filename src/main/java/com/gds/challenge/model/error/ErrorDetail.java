@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Error Detail Body
+ */
 @Getter
 @Setter
 @AllArgsConstructor

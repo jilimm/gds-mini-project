@@ -22,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * REST Controller for users
+ */
 @RestController
 @Validated
 public class UserController {
@@ -29,6 +32,16 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    /**
+     * Search list of users with parameters
+     *
+     * @param min minimum Salary
+     * @param max maximum Salary
+     * @param offset offset for result
+     * @param limit limit for result
+     * @param sort sorting type, not case-sensitive
+     * @return result list of users
+     */
     @GetMapping(value = "/users", produces = "application/json")
     @MaxMoreThanOrEqualToMin
     public UserQueryResult getUser(@RequestParam(defaultValue = "0.0") @PositiveOrZero float min,
@@ -41,6 +54,11 @@ public class UserController {
                 .build();
     }
 
+    /**
+     * Update users database with data from csv file
+     * @param file csv file
+     * @return success code.
+     */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
     public GenericResponse uploadFile(@RequestParam("file") @Validated @TextCsvFile MultipartFile file) {
         try {
