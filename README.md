@@ -51,13 +51,14 @@ Spring web application with endpoints to query a database and modify/insert data
         "error":{ 
             "timestamp": "11-04-2023 11:11:48",
             "message": "Error encountered while processing file", 
-        "details":[ 
-            { 
-                "field": "line 6",
-                "invalidValue": "April,pewpew",
-                "message": "Unparseable number: 'pewpew'"
+            "details":[ 
+                { 
+                    "field": "line 6",
+                    "invalidValue": "April,pewpew",
+                    "message": "Unparseable number: 'pewpew'"
+                }
+            ]
             }
-        ]}
         }
   
 ## Object
