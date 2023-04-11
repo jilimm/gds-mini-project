@@ -44,9 +44,9 @@ public class UserService {
      *
      * @param minSalary minimum Salary
      * @param maxSalary maximum salary
-     * @param offset result offset
-     * @param limit result limit
-     * @param sortType sort by name or salary
+     * @param offset    result offset
+     * @param limit     result limit
+     * @param sortType  sort by name or salary
      * @return list of users from DB
      */
     public List<User> getUsers(float minSalary,
@@ -63,7 +63,7 @@ public class UserService {
      * Parse csv file to Users object and update Users Database
      *
      * @param file csv file
-     * @throws IOException error reading file
+     * @throws IOException            error reading file
      * @throws CsvValidationException error validating file
      */
     @Transactional(rollbackOn = {IOException.class, CsvValidationException.class})

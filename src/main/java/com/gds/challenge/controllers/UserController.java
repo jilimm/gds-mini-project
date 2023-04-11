@@ -35,27 +35,22 @@ public class UserController {
     /**
      * Search list of users with parameters
      *
-     * @param min minimum Salary
-     * @param max maximum Salary
+     * @param min    minimum Salary
+     * @param max    maximum Salary
      * @param offset offset for result
-     * @param limit limit for result
-     * @param sort sorting type, not case-sensitive
+     * @param limit  limit for result
+     * @param sort   sorting type, not case-sensitive
      * @return result list of users
      */
     @GetMapping(value = "/users", produces = "application/json")
     @MaxMoreThanOrEqualToMin
-    public UserQueryResult getUser(@RequestParam(defaultValue = "0.0") @PositiveOrZero float min,
-                                   @RequestParam(defaultValue = "4000.0") @PositiveOrZero float max,
-                                   @RequestParam(defaultValue = "0") @PositiveOrZero int offset,
-                                   @RequestParam(required = false) Optional<@PositiveOrZero Integer> limit,
-                                   @RequestParam(required = false) Optional<UserSortType> sort) {
-        return UserQueryResult.builder()
-                .results(userService.getUsers(min, max, offset, limit, sort))
-                .build();
+    public UserQueryResult getUser(@RequestParam(defaultValue = "0.0") @PositiveOrZero float min, @RequestParam(defaultValue = "4000.0") @PositiveOrZero float max, @RequestParam(defaultValue = "0") @PositiveOrZero int offset, @RequestParam(required = false) Optional<@PositiveOrZero Integer> limit, @RequestParam(required = false) Optional<UserSortType> sort) {
+        return UserQueryResult.builder().results(userService.getUsers(min, max, offset, limit, sort)).build();
     }
 
     /**
      * Update users database with data from csv file
+     *
      * @param file csv file
      * @return success code.
      */
